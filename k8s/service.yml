@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+    name: cicd-472-sv-book
+spec:
+    selector:
+        app: 472-cicd-book
+    ports:
+        - protocol: TCP
+          port: 38090 # Port accessible outside the cluster
+          targetPort: 8090 # Port inside the container
+    type: NodePort

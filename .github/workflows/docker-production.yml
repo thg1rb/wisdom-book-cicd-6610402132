@@ -1,4 +1,4 @@
-name: Docker Image Production # Branch: main
+name: Docker Image Production
 on:
     push:
         branches: ["main"]
@@ -33,3 +33,28 @@ jobs:
                   platforms: linux/amd64,linux/arm64
                   tags: |
                       ${{ secrets.DOCKER_USERNAME }}/wisdom-book:latest
+    deploy:
+        needs: build-and-push
+        runs-on: self-hosted # self-hosted runner in your machine
+        environment: production
+
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: show kube context
+              run: |
+                  kubectl config current-context
+                  kubectl get nodes
+
+            - name: Deploy to Kubernetes
+              env:
+                  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+              shell: bash
+              run: |
+                  envsubst < k8s/deployment.yml | kubectl apply -f -
+                  kubectl apply -f k8s/service.yml
+
+                  kubectl rollout restart deployment/472-cicd-book
+                  kubectl rollout status deployment/472-cicd-book

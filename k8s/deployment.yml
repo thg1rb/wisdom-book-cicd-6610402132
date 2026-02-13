@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: 472-cicd-book
+    labels:
+        app: 472-cicd-book
+spec:
+    replicas: 2 # Runs two instances for high availability
+    selector:
+        matchLabels:
+            app: 472-cicd-book
+    template:
+        metadata:
+            labels:
+                app: 472-cicd-book
+        spec:
+            containers:
+                - name: 472-cicd-book
+                  # Use your Docker Hub image
+                  image: ${DOCKER_USERNAME}/wisdom-book:latest
+                  ports:
+                      - containerPort: 8090 # Standard port for Next.js/Node apps
+                  imagePullPolicy: Always # Ensures Kubernetes pulls the 'latest' every time
